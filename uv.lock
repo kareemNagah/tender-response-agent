@@ -1001,7 +1001,7 @@ wheels = [
 [[package]]
 name = "rfp-agent"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
     { name = "asyncpg" },
