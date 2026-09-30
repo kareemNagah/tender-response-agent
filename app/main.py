@@ -1,8 +1,10 @@
 import pydantic_settings
 from sqlalchemy.ext.asyncio import create_async_engine , async_sessionmaker 
-from asyncio import asynccontextmanager 
+from contextlib import asynccontextmanager 
 from fastapi import FastAPI , APIRouter
 from app.config import get_settings
+from app.api.health import health_router 
+import redis.asyncio as aioredis
 
 
 @asynccontextmanager
@@ -16,8 +18,17 @@ async def lifespan(app: FastAPI):
         bind=app.state.engine,
         expire_on_commit=False
     )
+    app.state.redis_client = aioredis.from_url(
+        url=settings.redis_url.get_secret_value(),
+        decode_responses=True,
+        socket_connect_timeout=2,
+        socket_timeout=2
+    )
+
     yield 
+
     await app.state.engine.dispose()
+    await app.state.redis_client.close()
 
 
 def create_app() -> FastAPI:
@@ -30,7 +41,7 @@ def create_app() -> FastAPI:
     ) 
 
     app.include_router(health_router)
-    app.include_router(api_v1_router,prefix=f"/api/v1")
+    # app.include_router(api_v1_router,prefix=f"/api/v1")
 
     return app 
 
