@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 import redis.asyncio as aioredis
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from app.core.logging import configure_logging
 
 from app.api.health import health_router
 from app.config import get_settings
-
+from app.core.middleware import add_request_context
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,13 +35,17 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
 
+    configure_logging(get_settings().log_level)
+    
+
     app = FastAPI(
         title="RFP Agent",
         description="RFP Agent API",
         version="0.1.0",
         lifespan=lifespan,
     )
-
+    
+    add_request_context(app)
     app.include_router(health_router)
     # app.include_router(api_v1_router, prefix="/api/v1")
 
