@@ -32,6 +32,7 @@ class Settings(BaseSettings):
 
     # Logging config
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
+    log_format: Literal["console", "json"] = "console"
 
 
 @lru_cache
