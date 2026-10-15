@@ -19,13 +19,13 @@ class Settings(BaseSettings):
     minio_root_user: str
     minio_root_password: SecretStr
 
-    # #s3 compatible storage 
-    # s3_endpoint_url: str 
-    # s3_access_key: str 
-    # s3_secret_key: SecretStr 
+    # #s3 compatible storage
+    # s3_endpoint_url: str
+    # s3_access_key: str
+    # s3_secret_key: SecretStr
     # s3_bucket: str
 
-    #LLM config 
+    # LLM config
     llm_base_url: str = "https://openrouter.ai/api/v1"
     llm_api_key: SecretStr | None = None  # set none until we decide to use llm
     llm_model: str | None = None

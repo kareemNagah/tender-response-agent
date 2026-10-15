@@ -3,7 +3,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-
     # Using consistent naming convention for all constraints
     metadata = MetaData(
         naming_convention={
