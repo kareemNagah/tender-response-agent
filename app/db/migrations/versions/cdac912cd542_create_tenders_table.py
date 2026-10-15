@@ -1,21 +1,21 @@
 """create tenders table
 
 Revision ID: cdac912cd542
-Revises: 
+Revises:
 Create Date: 2026-10-04 11:48:01.680417
 
 """
-from typing import Sequence, Union
 
-from alembic import op
+from collections.abc import Sequence
+
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'cdac912cd542'
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision: str = "cdac912cd542"
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -28,8 +28,12 @@ def upgrade() -> None:
         sa.Column("pages", sa.Integer(), nullable=True),
         sa.Column("status", sa.String(100), nullable=False, server_default="uploaded"),
         sa.Column("storage_key", sa.String(512), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False,
-                  server_default=sa.func.now()),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            nullable=False,
+            server_default=sa.func.now(),
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_tenders")),
     )
 

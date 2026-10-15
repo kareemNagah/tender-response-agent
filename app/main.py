@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.api.health import health_router
 from app.config import get_settings
+from app.core.errors import register_error_handlers
+from app.core.logging import configure_logging
+from app.core.middleware import add_request_context
 
 
 @asynccontextmanager
@@ -33,6 +36,8 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
+    configure_logging(level=settings.log_level, log_format=settings.log_format)
 
     app = FastAPI(
         title="RFP Agent",
@@ -41,6 +46,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    add_request_context(app)
+    register_error_handlers(app)
     app.include_router(health_router)
     # app.include_router(api_v1_router, prefix="/api/v1")
 

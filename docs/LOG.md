@@ -1,5 +1,41 @@
 # Build Log
 
+## 2026-10-15: Logging, request IDs, error format
+
+### Done
+- structlog on top of stdlib logging: JSON output for containers, colored console
+  output locally (`LOG_JSON` setting). Uvicorn logs go through the same pipeline.
+- Request-ID middleware: reads a valid `X-Request-ID` or generates a UUID, binds it
+  to contextvars, logs one `request_completed` line per request, returns the ID in
+  the response header.
+- `AppError` hierarchy (`NotFound`, `Conflict`, `ValidationFailed`) with one handler
+  returning RFC 7807 `application/problem+json`.
+- Health check failures are now logged with tracebacks.
+
+### Verified
+- 404 / 409 / 422 responses each have the five fields, `application/problem+json`,
+  and `instance` equal to the requested path.
+- Valid incoming request ID is echoed; an invalid one is replaced by a UUID.
+- The same `request_id` appears in the response header and the log line.
+- Temporary debug route removed after testing.
+
+### Issues
+- The `x-request-id` header was missing at first. An older uvicorn process was still
+  holding port 8000 and serving old code, so the new middleware never ran.
+  Found with `ss -tlnp`; now I check for stale processes before testing.
+- `ImportError` in the debug route: it imported names that no longer matched the
+  renamed error classes.
+
+### Decisions
+- Error format and logging approach: see ADR 0002 and ADR 0003.
+
+### Known limitations
+- Unmatched routes, `HTTPException` and request-validation errors still return
+  FastAPI's default shape.
+- Unhandled 500s don't carry `X-Request-ID` (see ADR 0003).
+
+---
+
 ## 2026-09-30: Application skeleton
 
 ### Done
@@ -21,6 +57,8 @@
 
 ### Next
 - Alembic migrations, structured logging, CI.
+
+---
 
 ## 2026-09-26: Infrastructure and tooling
 

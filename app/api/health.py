@@ -1,3 +1,4 @@
+import structlog
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from redis.exceptions import RedisError
@@ -5,6 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.deps import DbSession, RedisDep
+
+log = structlog.get_logger(__name__)
 
 health_router = APIRouter(prefix="/health", tags=["health"])
 
@@ -25,18 +28,22 @@ async def ready(session: DbSession, redis: RedisDep) -> JSONResponse:
         await session.execute(text("SELECT 1"))
         checks["database"] = "up"
     except (SQLAlchemyError, OSError):
+        log.warning("db_check_failed", exc_info=True)
         checks["database"] = "down"
 
     try:
         await redis.ping()
         checks["redis"] = "up"
     except (OSError, RedisError):
+        log.warning("redis_check_failed", exc_info=True)
         checks["redis"] = "down"
 
     healthy = all(v == "up" for v in checks.values())
 
     return JSONResponse(
-        status_code=(status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE),
+        status_code=(
+            status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+        ),
         content={"status": "ok" if healthy else "unavailable", **checks},
         headers={"Cache-Control": "no-store, must-revalidate"},
     )
