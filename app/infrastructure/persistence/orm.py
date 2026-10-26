@@ -6,10 +6,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from app.db.base import Base
+from app.infrastructure.persistence.base import Base
 
 
-class Tender(Base):
+class TenderRow(Base):
     __tablename__ = "tenders"
 
     id: Mapped[uuid.UUID] = mapped_column(

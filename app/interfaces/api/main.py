@@ -4,11 +4,11 @@ import redis.asyncio as aioredis
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.api.health import health_router
 from app.config import get_settings
-from app.core.errors import register_error_handlers
-from app.core.logging import configure_logging
-from app.core.middleware import add_request_context
+from app.infrastructure.observability.logging import configure_logging
+from app.interfaces.api.errors import register_error_handlers
+from app.interfaces.api.health import health_router
+from app.interfaces.api.middleware import add_request_context
 
 
 @asynccontextmanager

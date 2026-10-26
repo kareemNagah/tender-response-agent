@@ -22,7 +22,8 @@ settings = get_settings()
 config.set_main_option("sqlalchemy.url", settings.database_url.get_secret_value())
 
 # Import Base metadata for autogenerate support
-from app.db.base import Base
+from app.infrastructure.persistence import orm  # noqa: F401
+from app.infrastructure.persistence.base import Base
 
 target_metadata = Base.metadata
 

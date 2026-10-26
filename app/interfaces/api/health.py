@@ -5,7 +5,7 @@ from redis.exceptions import RedisError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.deps import DbSession, RedisDep
+from app.interfaces.api.deps import DbSession, RedisDep
 
 log = structlog.get_logger(__name__)
 
