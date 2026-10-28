@@ -9,7 +9,10 @@ from app.config import Settings, get_settings
 
 
 async def get_db(request: Request) -> AsyncIterator[AsyncSession]:
-    async with request.app.state.sessionmaker() as session:
+
+    sessionmaker = request.app.state.container.sessionmaker
+
+    async with sessionmaker() as session:
         yield session
 
 
