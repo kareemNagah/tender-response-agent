@@ -18,7 +18,7 @@ class TenderRow(Base):
         default=uuid.uuid4,
     )
 
-    file_name: Mapped[str] = mapped_column(
+    filename: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
     )
