@@ -2,8 +2,12 @@ from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    create_async_engine,
+)
 
+from app.bootstrap import build_container
 from app.config import get_settings
 from app.infrastructure.observability.logging import configure_logging
 from app.interfaces.api.errors import register_error_handlers
@@ -14,14 +18,20 @@ from app.interfaces.api.middleware import add_request_context
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    app.state.engine = create_async_engine(
+
+    engine = create_async_engine(
         url=settings.database_url.get_secret_value(),
         pool_pre_ping=True,
     )
-    app.state.sessionmaker = async_sessionmaker(
-        bind=app.state.engine,
+
+    sessionmaker = async_sessionmaker(
+        bind=engine,
         expire_on_commit=False,
     )
+
+    app.state.engine = engine
+    app.state.container = build_container(settings, sessionmaker)
+
     app.state.redis_client = aioredis.from_url(
         url=settings.redis_url.get_secret_value(),
         decode_responses=True,
