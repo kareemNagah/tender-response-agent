@@ -52,11 +52,7 @@ async def domain_error_handler(
         return await unhandled_error_handler(request, exc)
 
     status, title = next(
-        (
-            value
-            for cls, value in STATUS.items()
-            if isinstance(exc, cls)
-        ),
+        (value for cls, value in STATUS.items() if isinstance(exc, cls)),
         (400, "Domain error"),
     )
 
