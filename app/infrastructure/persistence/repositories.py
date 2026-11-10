@@ -50,10 +50,10 @@ class SqlAlchemyTenderRepository:
 
     async def get_by_sha256(
         self,
-        sha: Sha256,
+        sha256: Sha256,
     ) -> Tender | None:
 
-        statement = select(TenderRow).where(TenderRow.sha256 == sha.value)
+        statement = select(TenderRow).where(TenderRow.sha256 == sha256.value)
 
         result = await self._session.execute(statement)
 
