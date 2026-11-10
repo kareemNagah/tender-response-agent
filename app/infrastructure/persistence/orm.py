@@ -23,6 +23,12 @@ class TenderRow(Base):
         nullable=False,
     )
 
+    sha256: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        unique=True,
+    )
+
     pages: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
