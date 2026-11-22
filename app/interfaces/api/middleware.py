@@ -21,6 +21,8 @@ def add_request_context(app: FastAPI) -> None:
         incoming = request.headers.get("x-request-id", "")
         request_id = incoming if _SAFE_ID.fullmatch(incoming) else str(uuid.uuid4())
 
+        request.state.request_id = request_id
+
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(request_id=request_id)
         start = time.perf_counter()

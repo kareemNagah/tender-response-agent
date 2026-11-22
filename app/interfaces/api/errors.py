@@ -76,7 +76,7 @@ async def unhandled_error_handler(request: Request, exc: Exception) -> JSONRespo
 
     log.exception("unhandled_error")
     request_id = getattr(request.state, "request_id", None)
-    return _problem(
+    response = _problem(
         request,
         500,
         "Internal server error",
@@ -84,6 +84,9 @@ async def unhandled_error_handler(request: Request, exc: Exception) -> JSONRespo
         "internal_error",
         request_id=request_id,
     )
+    if request_id is not None:
+        response.headers["X-Request-ID"] = request_id
+    return response
 
 
 def register_error_handlers(app: FastAPI) -> None:
