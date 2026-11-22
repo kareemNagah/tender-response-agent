@@ -1,3 +1,5 @@
+import asyncio
+
 import structlog
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -5,11 +7,13 @@ from redis.exceptions import RedisError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.interfaces.api.deps import DbSession, RedisDep
+from app.interfaces.api.deps import DbEngine, RedisDep
 
 log = structlog.get_logger(__name__)
 
 health_router = APIRouter(prefix="/health", tags=["health"])
+
+CHECK_TIMEOUT_S = 2
 
 
 # Live health check
@@ -20,12 +24,14 @@ async def live() -> dict[str, str]:
 
 # Ready health check for database and redis
 @health_router.get("/ready")
-async def ready(session: DbSession, redis: RedisDep) -> JSONResponse:
+async def ready(engine: DbEngine, redis: RedisDep) -> JSONResponse:
 
     checks: dict[str, str] = {}
 
     try:
-        await session.execute(text("SELECT 1"))
+        async with asyncio.timeout(CHECK_TIMEOUT_S):
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
         checks["database"] = "up"
     except (SQLAlchemyError, OSError):
         log.warning("db_check_failed", exc_info=True)

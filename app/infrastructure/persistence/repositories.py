@@ -40,7 +40,7 @@ class SqlAlchemyTenderRepository:
 
         row = await self._session.get(
             TenderRow,
-            TenderId,
+            tender_id,
         )
 
         if row is None:
